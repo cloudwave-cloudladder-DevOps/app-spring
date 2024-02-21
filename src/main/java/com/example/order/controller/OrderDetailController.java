@@ -8,12 +8,12 @@ import com.example.order.repository.OrderDetailRepository;
 import com.example.order.service.OrderDetailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
-@RequestMapping("/api/v1/tlij")
+@Controller
 @RequiredArgsConstructor
 public class OrderDetailController {
     private final OrderDetailService orderDetailService;
@@ -27,5 +27,10 @@ public class OrderDetailController {
     @GetMapping
     public List<OrderListResponse> findOrders(@RequestBody OrderListRequest orderListRequest) {
         return orderDetailService.findOrder(orderListRequest.getName());
+    }
+
+    @GetMapping("/main")
+    public String main() {
+        return "order-page";
     }
 }
