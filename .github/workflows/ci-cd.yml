@@ -72,7 +72,7 @@ jobs:
           echo \${{ steps.login-ecr.outputs.registry }}/\${{ env.ECR_REPOSITORY }}
           echo \${{ steps.login-ecr.outputs.registry }}/\${{ env.ECR_REPOSITORY }}:\${{ github.sha }}
           kustomize edit set image \${{ steps.login-ecr.outputs.registry }}/\${{ env.ECR_REPOSITORY }}=\${{ steps.login-ecr.outputs.registry }}/\${{ env.ECR_REPOSITORY }}:\${{ github.sha }}
-          cat kustomization.yaml
+          cat kustomization.yaml 
 
       # 수정된 파일 commit & push
       - name: Commit files
