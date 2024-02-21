@@ -67,7 +67,7 @@ jobs:
       # 새 이미지 버전으로 파일 수정
       - name: Update Kubernetes resources
         run: |
-          pwd
+          pwd   
           cd k8s-manifest/overlay/dev
           echo \${{ steps.login-ecr.outputs.registry }}/\${{ env.ECR_REPOSITORY }}
           echo \${{ steps.login-ecr.outputs.registry }}/\${{ env.ECR_REPOSITORY }}:\${{ github.sha }}
