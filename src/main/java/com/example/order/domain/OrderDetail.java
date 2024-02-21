@@ -18,14 +18,10 @@ public class OrderDetail {
     private Long id;
     private String breadName;
     private String breadCategory;
-    @ManyToOne
-    @JoinColumn(name = "member_phone_number", referencedColumnName = "phoneNumber")
-    private Member member;
 
     @Builder
-    public OrderDetail(String breadName, String breadCategory, Member member) {
+    public OrderDetail(String breadName, String breadCategory) {
         this.breadName = breadName;
         this.breadCategory = breadCategory;
-        this.member = member;
     }
 }

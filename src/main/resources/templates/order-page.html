@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>상품구매</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
+
+    <style>
+        .gradient-custom {
+            background: linear-gradient(90deg, rgba(15,60,3,1) 0%, rgba(53,85,31,1) 6%, rgba(19,134,36,1) 100%)
+        }
+        .card {
+            border-radius: 0.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+        }
+    </style>
+</head>
+<body class="gradient-custom">
+<section class="vh-100">
+    <div class="container py-5 h-100">
+        <div class="row justify-content-center align-items-center h-100">
+            <div class="col-12">
+                <div class="text-center text-white mb-5">
+                    <img th:src="@{/img/logo.png}" class="card-img-top" alt="상품 이미지">
+                    <div style="margin: 20px;"></div>
+                    <h2 class="mb-0">상품 목록</h2>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card shadow-sm border-0 rounded">
+                            <img th:src="@{/img/malcha.jpg}" class="card-img-top" alt="상품 이미지">
+                            <div class="card-body">
+                                <h5 class="card-title">겹겹이 말차 퐁당</h5>
+                                <p class="card-text">카테고리 : 말차</p>
+                                <button type="button" class="btn btn-success">주문</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card shadow-sm border-0 rounded">
+                            <img th:src="@{/img/blackmalcha.jpg}" class="card-img-top" alt="상품 이미지">
+                            <div class="card-body">
+                                <h5 class="card-title">까망쿠키 속 리얼말차 크림빵</h5>
+                                <p class="card-text">카테고리 : 말차</p>
+                                <button type="button" class="btn btn-success">주문</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card shadow-sm border-0 rounded">
+                            <img th:src="@{/img/corncheese.jpg}" class="card-img-top" alt="상품 이미지">
+                            <div class="card-body">
+                                <h5 class="card-title">바삭 연유 콘치즈</h5>
+                                <p class="card-text">카테고리 : 옥수수</p>
+                                <button type="button" class="btn btn-success">주문</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card shadow-sm border-0 rounded">
+                            <img th:src="@{/img/goroke.png}" class="card-img-top" alt="상품 이미지">
+                            <div class="card-body">
+                                <h5 class="card-title">NEW 김치 고로케</h5>
+                                <p class="card-text">카테고리 : 고로케</p>
+                                <button type="button" class="btn btn-success">주문</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card shadow-sm border-0 rounded">
+                            <img th:src="@{/img/goroke.png}" class="card-img-top" alt="상품 이미지">
+                            <div class="card-body">
+                                <h5 class="card-title">NEW 매콤 고로케</h5>
+                                <p class="card-text">카테고리 : 고로케</p>
+                                <button type="button" class="btn btn-success">주문</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card shadow-sm border-0 rounded">
+                            <img th:src="@{/img/goroke.png}" class="card-img-top" alt="상품 이미지">
+                            <div class="card-body">
+                                <h5 class="card-title">NEW 불닭 고로케</h5>
+                                <p class="card-text">카테고리 : 고로케</p>
+                                <button type="button" class="btn btn-success">주문</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.btn-success').forEach(button => {
+            button.addEventListener('click', function() {
+                const cardBody = this.closest('.card-body');
+                const breadName = cardBody.querySelector('.card-title').textContent;
+                const breadCategory = cardBody.querySelector('.card-text').textContent.split(': ')[1];
+
+
+                fetch('/api/v1/order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ breadName, breadCategory }),
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert('주문이 완료');
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                        alert('주문 처리 중 오류가 발생');
+                    });
+            });
+        });
+    });
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.btn-success').forEach(function(button) {
+            button.addEventListener('click', function(event) {
+                event.preventDefault();
+                const cardBody = this.closest('.card-body');
+                const productName = cardBody.querySelector('.card-title').textContent;
+                const productCategory = cardBody.querySelector('.card-text').textContent;
+                const popupContent = `
+                <div id="purchasePopup" class="popup">
+                    <div class="popup-content">
+                        <h5>${productName}</h5>
+                        <p>${productCategory}</p>
+                        <p>구매완료</p>
+                        <button id="closePopup">닫기</button>
+                    </div>
+                </div>
+            `;
+                document.body.insertAdjacentHTML('beforeend', popupContent);
+                document.getElementById('closePopup').addEventListener('click', function() {
+                    document.getElementById('purchasePopup').remove();
+                });
+            });
+        });
+    });
+    document.head.insertAdjacentHTML('beforeend', `
+    <style>
+        .popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .popup-content {
+            background-color: #ACE1AF;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        #closePopup {
+            margin-top: 20px;
+            display: inline-block;
+            background-color: #4B6F44;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+    </style>
+`);
+</script>
+</body>
+</html>
