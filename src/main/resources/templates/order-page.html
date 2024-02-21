@@ -93,6 +93,32 @@
 </section>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.btn-success').forEach(button => {
+            button.addEventListener('click', function() {
+                const cardBody = this.closest('.card-body');
+                const breadName = cardBody.querySelector('.card-title').textContent;
+                const breadCategory = cardBody.querySelector('.card-text').textContent.split(': ')[1];
+
+
+                fetch('/api/v1/order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ breadName, breadCategory }),
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert('주문이 완료');
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                        alert('주문 처리 중 오류가 발생');
+                    });
+            });
+        });
+    });
+    document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('.btn-success').forEach(function(button) {
             button.addEventListener('click', function(event) {
                 event.preventDefault();
