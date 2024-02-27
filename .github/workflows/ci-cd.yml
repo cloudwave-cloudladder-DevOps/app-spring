@@ -65,7 +65,7 @@ jobs:
       # 수정된 파일 commit & push
       - name: Commit files
         run: |
-          cd k8s-manifest
+          cd gitOps-spring
           git config --global user.email "haeun8701@gmail.com"
           git config --global user.name "hann0079"
           git commit -am "deploy tested image container"
