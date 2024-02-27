@@ -39,3 +39,34 @@ jobs:
           TAG=$(aws ecr describe-images --repository-name ${{ env.ECR_REPOSITORY }} --query 'reverse(sort_by(imageDetails,&imagePushedAt))[0].imageTags[0]' --output text)
           echo "The latest image tag is $TAG"
           echo "::set-output name=TAG::$TAG"  
+          
+      - name: Setup Kustomize
+        uses: imranismail/setup-kustomize@v1
+
+      - name: Checkout kustomize repository
+        uses: actions/checkout@v2
+        with:
+          # kubernetes 설정정보 저장소
+          repository: cloudwave-cloudladder-DevOps/gitOps-spring  # repo
+          ref: main  # branch
+          # 다른 저장소에 push 하려면 Personal Access Token이 필요함
+          token: ${{ secrets.ACTION_TOKEN }}
+          path: gitOps-spring # repo와 같은 이름으로 root 디렉토리 설정
+
+      - name: Update Kubernetes resources
+        run: |
+          pwd
+          cd gitOps-spring/overlay/prod
+          echo \${{ steps.login-ecr.outputs.registry }}/\${{ env.ECR_REPOSITORY }}
+          echo \$${{ steps.login-ecr.outputs.registry }}/\${{ env.ECR_REPOSITORY }}:\${{ steps.get-ecr-image-tag.outputs.TAG }}
+          kustomize edit set image \${{ steps.login-ecr.outputs.registry }}/\${{ env.ECR_REPOSITORY }}=\${{ steps.login-ecr.outputs.registry }}/\${{ env.ECR_REPOSITORY }}:\${{ steps.get-ecr-image-tag.outputs.TAG }}
+          cat kustomization.yaml
+
+      # 수정된 파일 commit & push
+      - name: Commit files
+        run: |
+          cd k8s-manifest
+          git config --global user.email "haeun8701@gmail.com"
+          git config --global user.name "hann0079"
+          git commit -am "deploy tested image container"
+          git push -u origin main
