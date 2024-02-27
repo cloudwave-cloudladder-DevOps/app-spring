@@ -3,7 +3,7 @@ name: Dockerizing to Amazon ECR
 on:
   push:       # 트리거
     branches:
-      - dev
+      - main
 
 env:
   AWS_REGION: ap-northeast-2        # set this to your preferred AWS region, e.g. us-west-1
@@ -30,26 +30,15 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-
-      - name: Build, tag, and push image to Amazon ECR
-        id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          # Build a docker container and
-          # push it to ECR so that it can
-          # be deployed to ECS.
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
-      - name: Get verion
-        id: image
+      - name: Get ECR Image Tag
+        id: get-ecr-image-tag
         run: |
-          VERSION=$(echo ${{ github.sha }} | cut -c1-8)
-          echo VERSION=$VERSION
-          echo "::set-output name=version::$VERSION"
+          TAG=$(aws ecr describe-images --repository-name ${{ env.ECR_REPOSITORY }} --query 'reverse(sort_by(imageDetails,&imagePushedAt))[0].imageTags[0]' --output text)
+          echo "The latest image tag is $TAG"
+          echo "::set-output name=TAG::$TAG"  
 
       - name: Setup Kustomize
         uses: imranismail/setup-kustomize@v1
@@ -64,15 +53,14 @@ jobs:
           token: ${{ secrets.ACTION_TOKEN }}
           path: gitOps-spring # repo와 같은 이름으로 root 디렉토리 설정
 
-      # 새 이미지 버전으로 파일 수정
       - name: Update Kubernetes resources
         run: |
-          pwd   
-          cd gitOps-spring/overlay/dev
+          pwd
+          cd gitOps-spring/overlay/prod
           echo \${{ steps.login-ecr.outputs.registry }}/\${{ env.ECR_REPOSITORY }}
-          echo \${{ steps.login-ecr.outputs.registry }}/\${{ env.ECR_REPOSITORY }}:\${{ github.sha }}
-          kustomize edit set image \${{ steps.login-ecr.outputs.registry }}/\${{ env.ECR_REPOSITORY }}=\${{ steps.login-ecr.outputs.registry }}/\${{ env.ECR_REPOSITORY }}:\${{ github.sha }}
-          cat kustomization.yaml 
+          echo \$${{ steps.login-ecr.outputs.registry }}/\${{ env.ECR_REPOSITORY }}:\${{ steps.get-ecr-image-tag.outputs.TAG }}
+          kustomize edit set image \${{ steps.login-ecr.outputs.registry }}/\${{ env.ECR_REPOSITORY }}=\${{ steps.login-ecr.outputs.registry }}/\${{ env.ECR_REPOSITORY }}:\${{ steps.get-ecr-image-tag.outputs.TAG }}
+          cat kustomization.yaml
 
       # 수정된 파일 commit & push
       - name: Commit files
@@ -80,5 +68,5 @@ jobs:
           cd gitOps-spring
           git config --global user.email "haeun8701@gmail.com"
           git config --global user.name "hann0079"
-          git commit -am "Update image tag"
-          git push -u origin main   
+          git commit -am "deploy tested image container"
+          git push -u origin main
