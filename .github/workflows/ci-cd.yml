@@ -2,11 +2,7 @@ name: Dockerizing to Amazon ECR
 
 on:
   push:       # 트리거
-<<<<<<< HEAD
     branches:
-=======
-    branches: 
->>>>>>> prod
       - main
 
 env:
